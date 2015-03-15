@@ -52,6 +52,7 @@ CREATE TABLE `forum` (
   `category_id` int(11) DEFAULT NULL,
   `parent_id` int(11) DEFAULT NULL,
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `locked` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `category_id` (`category_id`),
   KEY `parent_id` (`parent_id`),
@@ -86,6 +87,7 @@ CREATE TABLE `post` (
   `forum_id` int(11) NOT NULL,
   `sticky` tinyint(1) NOT NULL DEFAULT '0',
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `locked` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `forum_id` (`forum_id`),
   KEY `parent_id` (`parent_id`),
@@ -145,6 +147,9 @@ CREATE TABLE `user` (
   `birth_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `banned` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `is_admin` tinyint(1) NOT NULL DEFAULT '1',
+  `gender` varchar(10) DEFAULT NULL,
+  `country` varchar(80) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user_type_id` (`user_type_id`),
   CONSTRAINT `user_ibfk_1` FOREIGN KEY (`user_type_id`) REFERENCES `user_type` (`id`)
@@ -193,4 +198,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-03-15  9:15:14
+-- Dump completed on 2015-03-15 11:01:19
