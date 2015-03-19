@@ -94,7 +94,7 @@ class UserController extends Zend_Controller_Action
         // action body
         
         $userid = $this->_request->getParam("userid");
-        $form  = new Application_Form_Registration();
+        $form  = new Application_Form_Edit();
         $thisUser = new Application_Model_User();
         $data = $thisUser->getUserByID($userid);
         $birthDatesArr = explode('-', $data['birth_date']);
@@ -154,8 +154,11 @@ class UserController extends Zend_Controller_Action
         $userid = $authorization->getIdentity()->id;
         $thisUser = new Application_Model_User();
         $data = $thisUser->getUserByID($userid);
+        $thisUserNessage = new Application_Model_PrivateMessage();
+        $data2 = $thisUserNessage->getPrivateMessageByRecieverID($userid);
         //var_dump($data);
         $this->view->userData = $data;
+        $this->view->userPrivateMsg = $data2;
         //$this->view->userData = $data;
         
     }
