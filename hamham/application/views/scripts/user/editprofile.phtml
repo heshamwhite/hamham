@@ -1,0 +1,13 @@
+<br /><br />
+<div id="view-content">
+	<p>View script for controller <b>User</b> and script/action name <b>register</b></p>
+</div>
+
+
+<?php
+    $authorization = Zend_Auth::getInstance();
+    $username =  $authorization->getIdentity()->username;
+    echo "<font size='15' color='red'>".$username."</font><br/>";
+    header('Content-Type: text/html; charset=utf-8');
+    echo $this->form;
+?>

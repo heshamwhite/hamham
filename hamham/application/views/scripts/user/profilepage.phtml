@@ -1,0 +1,30 @@
+<br /><br />
+<div id="view-content">
+	<p>View script for controller <b>User</b> and script/action name <b>profilepage</b></p>
+</div>
+
+<?php
+    echo '<h3>'.$this->userData['username'].'</h3></br>';
+    echo '<font color="blue"> First Name: </font>'.$this->userData['firstname'].'</br>';
+    echo '<font color="blue"> Last Name: </font>'.$this->userData['lastname'].'</br>';
+    echo '<font color="blue"> Email: </font>'.$this->userData['email'].'</br>';
+    echo '<font color="blue"> Date of Birth: </font>'.$this->userData['birth_date'].'</br>';
+    
+    $authorization = Zend_Auth::getInstance();
+    $id =  $authorization->getIdentity()->id;
+    echo '<p>';
+    echo '<a href="/hamham/hamham/public/user/editprofile/userid/'.$id.'"> Edit Your  Profile  </a>';
+    echo '</p>';
+    echo '<h3>'.$this->userData['username']."'s Messages</h3></br>";
+    foreach ($this->userPrivateMsg as $msg) {
+        //var_dump($msg);
+        echo '<p>';
+        echo '<font color="green"> Title: </font>'.$msg['msg_title'].'</br>';
+        echo '<font color="green"> Sender: </font>'.$msg['sendUserID'].'</br>';
+        echo '<font color="green"> Reciever: </font>'.$msg['receiveUserID'].'</br>';
+        echo '<font color="green"> Body: </font>'.$msg['msg_body'].'</br>';
+        echo '</p>';
+        
+    }
+    
+?>

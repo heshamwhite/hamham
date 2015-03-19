@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+
+       <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            min-width: 566px;
+        }
+        .wrapper {
+            display: table;
+            height: 100%;
+            width: 100%;
+            min-width: 566px;
+            background-color: #FFFFFF;
+              /* just to make sure nothing bleeds background: grey;*/
+        }
+        .list{
+            
+           
+            background-color: #FFFFFF;
+            height: 400px;
+            
+            overflow: scroll;
+
+        }
+        .order{
+            
+            width: 20%;
+            min-width: 237px;
+            background-color: #FFFFC0;
+            float: left;
+            height: 400px;
+            
+
+        }
+        .page{
+            
+            float: right;
+            display: table-row;  /* height is dynamic, and will expand... */
+            width: 76%;
+            min-width: 175px;
+            height: 100%;
+            background-color: #FFF0FF;
+                    /* ...as content is added (won't scroll) */
+                   /* ...as content is added (won't scroll) */
+                    
+            
+            
+
+        }
+        .product{
+            
+           
+            background-color: #FFFFFF;
+           /* padding: 0; */
+
+        }
+    </style>
+</head>
+<body>
+
+    
+    <div class="well order">
+        <button type="button" onclick="showCategories()" class="btn btn-info btn-lg">Manage Categories</button> 
+    </div>
+
+    <div id="view-content" class=" well page">
+        
+        
+    </div>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    
+<script>
+    
+    function showCategories()
+    {
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("GET" , "/hamham/hamham/public/admin/categorylist", true);
+            //ajaxRequest.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            
+            ajaxRequest1.send();
+        
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                finalAllProduct = ajaxRequest1.responseText.split("###");
+                allProducts = JSON.parse(finalAllProduct[1]);
+                
+                div = document.querySelector("#view-content");
+                div.innerHTML = "";
+		for(i = 0 ; i < allProducts.length;i++)
+                {
+                    div.innerHTML +=   "<div class='well col-lg-6  onlist'  onclick='' style='cursor: pointer;'><h3>"+allProducts[i].name+"</h3></div>";
+                }
+            }
+            };
+    }
+
+</script>
+</body>
+</html>
