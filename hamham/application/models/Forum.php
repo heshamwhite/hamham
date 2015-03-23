@@ -29,6 +29,11 @@ class Application_Model_Forum extends Zend_Db_Table_Abstract
         $where[] = "deleted = 0";
         return $this->fetchAll($where)->toArray();
     }
+    
+    function editForum($data){
+        return $this->update($data, "id=".$data['id']);
+    
+    }
       
     function getSubForumsById($id){
         $where[] = "parent_id = $id";
