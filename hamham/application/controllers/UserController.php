@@ -10,7 +10,8 @@ class UserController extends Zend_Controller_Action
 
     public function indexAction()
     {
-        // action body
+        
+       
     }
 
     public function registerAction()
@@ -22,25 +23,75 @@ class UserController extends Zend_Controller_Action
         $form  = new Application_Form_Registration();
        
         if($this->_request->isPost()){
-           if($form->isValid($this->_request->getParams())){
-               $cid = "eeee";
-               $seed = str_split('abcdefghijklmnopqrstuvwxyz'
+            if($form->isValid($this->_request->getParams())){
+                
+                /* Uploading Document File on Server */
+                $upload = new Zend_File_Transfer_Adapter_Http();
+                
+                //var_dump($upload);
+// 
+                $upload->setDestination(APPLICATION_PATH . '/images');
+               
+                try {
+                // upload received file(s)
+                    $upload->receive();
+                } catch (Zend_File_Transfer_Exception $e) {
+                    $e->getMessage();
+                }
+
+                // so, Finally lets See the Data that we received on Form Submit
+                $uploadedData = $form->getValues();
+                //Zend_Debug::dump($uploadedData, 'Form Data:');
+
+                // you MUST use following functions for knowing about uploaded file 
+                # Returns the file name for 'p' named file element
+                $name = $upload->getFileName('picture');
+               
+                # Returns the size for 'doc_path' named file element 
+                # Switches of the SI notation to return plain numbers
+                //$upload->setOption(array('useByteString' => false));
+                $size = $upload->getFileSize('picture');
+
+                # Returns the mimetype for the 'picture' form element
+                $mimeType = $upload->getMimeType('picture');
+ 
+                // following lines are just for being sure that we got data
+                /*   print "Name of uploaded file: $name 
+               ";
+                print "File Size: $size 
+               ";
+                print "File's Mime Type: $mimeType";
+                */
+                // New Code For Zend Framework :: Rename Uploaded File
+                $renameFile = 'newName.jpg';
+
+                $fullFilePath = '../images/'.$renameFile;
+
+                // Rename uploaded file using Zend Framework
+                $filterFileRename = new Zend_Filter_File_Rename(array('target' => $fullFilePath, 'overwrite' => true));
+                
+                $ret = $filterFileRename -> filter(APPLICATION_PATH . '/images/'.'asd.jpg');
+               
+               
+                $seed = str_split('abcdefghijklmnopqrstuvwxyz'
                  .'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                  .'0123456789'); // and any other characters
                 shuffle($seed); // probably optional since array_is randomized; this may be redundant
                 $cid= substr(implode('', $seed), 1, 51);
-               $user_info = $form->getValues();
-                 
-               $user_model = new Application_Model_User();
-               $user_model->addUser($user_info);
-               $regiData['username'] = $user_info['username'];
-               $regiData['confirmationNumber'] = $cid;
+                $user_info = $form->getValues();
+                $imageName = $user_info['username'].uniqid();
+                rename($name, APPLICATION_PATH . '/../public/images/users/'.$imageName); 
+                $user_info['profileimage'] = 'images/users/'.$imageName;
+                $user_model = new Application_Model_User();
+                $user_model->addUser($user_info);
+                $regiData['username'] = $user_info['username'];
+                $regiData['confirmationNumber'] = $cid;
                
-               $RegiMsg_model = new Application_Model_RegistrationMessage();
-               $RegiMsg_model->addMessage($regiData);
+                $RegiMsg_model = new Application_Model_RegistrationMessage();
+                $RegiMsg_model->addMessage($regiData);
                
-               //$form->reset();       
-               require_once 'Zend/Mail/Transport/Smtp.php';
+                //$form->reset();       
+                require_once 'Zend/Mail/Transport/Smtp.php';
 
                 //Initialize needed variables
                 $your_name = 'Hesham Admin';
@@ -78,9 +129,10 @@ class UserController extends Zend_Controller_Action
                 catch (Exception $e) {
                  $sent = false;
                 }
+                 $this->redirect("user/message/msg/regisucc");
            }
            else{
-               echo "bad";
+               echo "Your Information is not correct";
                //var_dump($this->_request->getParams());
            }
         }
@@ -93,51 +145,111 @@ class UserController extends Zend_Controller_Action
     {
         // action body
         
-        $userid = $this->_request->getParam("userid");
-        $form  = new Application_Form_Edit();
-        $thisUser = new Application_Model_User();
-        $data = $thisUser->getUserByID($userid);
-        $birthDatesArr = explode('-', $data['birth_date']);
-        $data['day'] = $birthDatesArr[2]-1;
-        $data['month'] = $birthDatesArr[1]-1;
-        $data['year'] = $birthDatesArr[0]-1915;
-        $form->populate($data);
-        if($this->_request->isPost()){
-           if($form->isValid($this->_request->getParams())){
-                $user_info = $form->getValues();
-                $user_model = new Application_Model_User();
-                $user_model->updateUserByID(35,$user_info);
-           }
-           else{
-               echo "bad";
-               //var_dump($this->_request->getParams());
-           }
+        $authorization = Zend_Auth::getInstance();
+        if(isset($authorization->getIdentity()->id)){
+            $userid = $authorization->getIdentity()->id;    
+            //$userid = $this->_request->getParam("userid");
+            $form  = new Application_Form_Edit();
+            $thisUser = new Application_Model_User();
+            $data = $thisUser->getUserByID($userid);
+            $birthDatesArr = explode('-', $data['birth_date']);
+            $data['day'] = $birthDatesArr[2]-1;
+            $data['month'] = $birthDatesArr[1]-1;
+            $data['year'] = $birthDatesArr[0]-1915;
+            $form->picture->setRequired(false);
+            $form->email->addValidator(
+                'Db_NoRecordExists',
+                false,
+                array(
+                    'table'     => 'user',
+                    'field'     => 'email',
+                    'exclude'   => array(
+                        'field' => 'email',
+                        'value' => $data['email']
+                    )
+                )
+            );
+            $form->populate($data); 
+            if($this->_request->isPost()){
+               if($form->isValid($this->_request->getParams())){
+                    //
+                    //var_dump($_FILES);
+                    if($_FILES['picture']['size']== NULL) {
+                        //echo 'No upload';
+                        $user_info = $form->getValues();
+                        $user_info['profileimage'] = $data['profileimage'];
+                        echo "there is no new pic";
+                    }
+                    else{
+                        //echo "haaaaaaaaaa new pic";
+                        $upload = new Zend_File_Transfer_Adapter_Http();
+                
+                        //var_dump($upload);
+                        $upload->setDestination(APPLICATION_PATH . '/images');
+
+                        try {
+                        // upload received file(s)
+                            $upload->receive();
+                        } catch (Zend_File_Transfer_Exception $e) {
+                            $e->getMessage();
+                        }
+                        
+                        $name = $upload->getFileName('picture');
+                        
+                        $renameFile = 'newName.jpg';
+
+                        $fullFilePath = '../images/'.$renameFile;
+
+                        // Rename uploaded file using Zend Framework
+                        $filterFileRename = new Zend_Filter_File_Rename(array('target' => $fullFilePath, 'overwrite' => true));
+
+                        $ret = $filterFileRename -> filter(APPLICATION_PATH . '/images/'.'asd.jpg');
+
+                        $user_info = $form->getValues();
+                        $imageName = $user_info['username'].uniqid();
+                        //exit;
+                        rename($name, APPLICATION_PATH . '/../public/images/users/'.$imageName); 
+                        $user_info['profileimage'] = 'images/users/'.$imageName;
+                    }
+                    
+                    $user_model = new Application_Model_User();
+                    $user_model->updateUserByID($userid,$user_info);
+                    $this->redirect("user/message/msg/useredited");
+               }
+               else{
+                   echo "Your Information is not correct";
+                   //var_dump($this->_request->getParams());
+               }
+               
+               }
+            $this->view->form = $form;
+            
         }
-       
-        $this->view->form = $form;
-        
-        
+        else{
+            $this->_helper->viewRenderer('Error/unauthoriezed', null, true);
+        }
+
         
     }
 
     public function confirmAction()
     {
-         $username = $this->_request->getParam("username");
-         $confirmMsg = $this->_request->getParam("cid");
+        $username = $this->_request->getParam("username");
+        $confirmMsg = $this->_request->getParam("cid");
          
-         $regiMessage_model = new Application_Model_RegistrationMessage();
-         $data = $regiMessage_model->getMessageByUsername($username); 
-         if ($data['confirmationNumber'] == $confirmMsg){
+        $regiMessage_model = new Application_Model_RegistrationMessage();
+        $data = $regiMessage_model->getMessageByUsername($username); 
+        if ($data['confirmationNumber'] == $confirmMsg){
              
-             $data2['confirmed'] = "1";
-             $user_model = new Application_Model_User();
+            $data2['confirmed'] = "1";
+            $user_model = new Application_Model_User();
             // $user_model->updateUserByUsername($username, $user_info);
-             $user_model->updateUserByUsername($username, $data2);
-             echo 'Confirmation Successful';
-         }
-         else{
-             echo 'Confirmation Failed';
-         }
+            $user_model->updateUserByUsername($username, $data2);
+            $this->redirect("user/message/msg/confsucc");
+        }
+        else{
+            $this->redirect("user/message/msg/confail");
+        }
          
     }
 
@@ -154,14 +266,73 @@ class UserController extends Zend_Controller_Action
         $userid = $authorization->getIdentity()->id;
         $thisUser = new Application_Model_User();
         $data = $thisUser->getUserByID($userid);
-        $thisUserNessage = new Application_Model_PrivateMessage();
-        $data2 = $thisUserNessage->getPrivateMessageByRecieverID($userid);
+        $thisUserMessage = new Application_Model_PrivateMessage();
+        $data2 = $thisUserMessage->getPrivateMessageByRecieverID($userid);
         //var_dump($data);
         $this->view->userData = $data;
         $this->view->userPrivateMsg = $data2;
         //$this->view->userData = $data;
         
     }
+    public function messageAction()
+    {
+        $msgType = $this->_getParam("msg");
+        //echo $msgType;
+        if($msgType == 'useredited'){
+            $this->view->message = "The information has been edited successfuly";
+        }
+        else if($msgType == 'confsucc'){
+            $this->view->message = "Confirmation Successful";
+        }
+        else if($msgType == 'confail'){
+            $this->view->message = "Confirmation Failed";
+        }
+        else if($msgType == 'regisucc'){
+            $this->view->message = "Registration has been successful, Please check your email for the confirmation message";
+        }
+        else{
+            $this->view->message = "Unknown message";
+        }
+        // action body
+    }
+    public function friendprofileAction(){
+        $friendid = $this->_request->getParam("friendid");
+        $thisUser = new Application_Model_User();
+        
+        $data = $thisUser->getUserByID($friendid);
+        //$data = $thisUser->getUserByID(86);
+        $this->view->userData = $data;
+        
+        
+        
+    }
+    
+    public function sendmsgAction(){
+        //echo $this->_request->getParam("rec_id");
+        //echo $this->_request->getParam("message");
+        //echo $this->_request->getParam("msgtitle");
+        //exit;
+        $authorization = Zend_Auth::getInstance();
+        if(isset($authorization->getIdentity()->id)){
+        $myUserid = $authorization->getIdentity()->id;
+        
+        $rec_id = $this->_request->getParam("rec_id");
+        $msg = $this->_request->getParam("message");
+        $title = $this->_request->getParam("msgtitle");
+        $thisUserMessage = new Application_Model_PrivateMessage();
+        $data['msg_title'] =  $title;
+        $data['sendUserID'] =  $myUserid;
+        $data['receiveUserID'] =  $rec_id;
+        $data['msg_body'] =  $msg;
+        //print_r($data);
+        $result = $thisUserMessage->addPrivateMessage($data);
+            echo '###message sent###';
+        }
+        else{
+            echo '###error###';
+        }
+    }
+    
 
 
 }

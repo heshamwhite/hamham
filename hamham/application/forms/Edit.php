@@ -15,8 +15,6 @@ class Application_Form_Edit extends Zend_Form
     {        
         $this->setMethod("post");
         
-        
-        
         $username = new Zend_Form_Element_Hidden("username");
         
         $firstname = new Zend_Form_Element_Text("firstname");
@@ -37,10 +35,10 @@ class Application_Form_Edit extends Zend_Form
         $email->setRequired();
         $email->setLabel("Email:");
         $email->addValidator(new Zend_Validate_EmailAddress());
-        $email->addValidator(new Zend_Validate_Db_NoRecordExists(array(
-            'table' => 'user',
-            'field' => 'email'
-            )));
+//        $email->addValidator(new Zend_Validate_Db_NoRecordExists(array(
+//              'table' => 'user',
+//            'field' => 'email'
+//            )));
 
         $password = new Zend_Form_Element_Password("password");
         $password->setRequired();
@@ -50,7 +48,7 @@ class Application_Form_Edit extends Zend_Form
         $userTypes = new Application_Model_UserType();
         $userType_list = $userTypes->getUserTypeList();
         
-        $usertype = new Zend_Form_Element_Select("usertype");
+        $usertype = new Zend_Form_Element_Select("user_type_id");
         $usertype->setLabel("Experience Level");
         
         $userTypeOptions = array();
@@ -103,7 +101,6 @@ class Application_Form_Edit extends Zend_Form
 
         $picture = new Zend_Form_Element_File('picture', array(
             'label' => 'Picture',
-            'required' => true,
             'MaxFileSize' => 2097152, // 2097152 BYTES = 2 MEGABYTES
             'validators' => array(
                 array('Count', false, 1),

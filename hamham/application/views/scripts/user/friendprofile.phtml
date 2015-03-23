@@ -1,0 +1,58 @@
+<br /><br />
+<div id="view-content">
+	<p>View script for controller <b>User</b> and script/action name <b>confirm</b></p>
+</div>
+<?php
+    echo '<h3>'.$this->userData['username'].'</h3></br>';
+    $userimg = $this->userData['profileimage'];
+    echo "<img src='../../../$userimg' width='100' height='100'>".'<br/>';
+    echo '<font color="blue"> First Name: </font>'.$this->userData['firstname'].'</br>';
+    echo '<font color="blue"> Last Name: </font>'.$this->userData['lastname'].'</br>';
+    echo '<font color="blue"> Email: </font>'.$this->userData['email'].'</br>';
+    echo '<font color="blue"> Date of Birth: </font>'.$this->userData['birth_date'].'</br>';
+    
+    
+   
+   
+?>
+
+<div>
+    <form>
+        Title<input id="messagetitle"></input><br/>
+        Message<textarea id="messagetext"></textarea>
+        <input type="button" value="Send" id="send" onclick="sendAction();" />
+    </form>    
+</div>
+<div id="msg_result">
+    
+</div>
+
+<script type="text/javascript">
+    function sendAction(){
+        msg = document.getElementById("messagetext").value;
+        title = document.getElementById("messagetitle").value;
+        console.log(msg);
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/user/sendmsg", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            ajaxRequest1.send("message="+msg+"&rec_id="+<?php echo $this->userData['id'] ?>+"&msgtitle="+title);
+            
+            ajaxRequest1.onreadystatechange = function(){
+                if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                    //console.log(ajaxRequest1.responseText);
+                    var result = ajaxRequest1.responseText.split("###");
+                    if(result[1].trim()=="message sent"){
+                        document.getElementById("msg_result").innerHTML = "Message Send";
+                    }
+                    else{
+                        document.getElementById("msg_result").innerHTML = "Error in sending message, try again";
+                    }
+                }
+        };
+    }
+</script>

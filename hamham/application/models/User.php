@@ -45,5 +45,10 @@ class Application_Model_User extends Zend_Db_Table_Abstract
         $this->update($data, "username='".$username."'");
         return $this->fetchAll()->toArray();
     }
+    
+    function listUsers(){
+        $where[] = "deleted = 0";
+        return $this->fetchAll($where)->toArray();  
+    }
 }
 
