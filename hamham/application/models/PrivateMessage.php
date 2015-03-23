@@ -10,8 +10,9 @@ class Application_Model_PrivateMessage extends Zend_Db_Table_Abstract
         $row->receiveUserID = $data['receiveUserID'];
         $row->msg_body = $data['msg_body'];
         $row->msg_title = $data['msg_title'];
-        return $row->save();
-        
+        //var_dump($row);
+        //exit;
+        return $row->save();        
     }
     function getPrivateMessageByRecieverID($id){
         $privateMessages = new Application_Model_PrivateMessage();

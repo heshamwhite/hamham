@@ -121,7 +121,7 @@ class Application_Form_Registration extends Zend_Form
                                                 'maxheight' => 1000))
             )
         ));
- 
+        //$picture->setDestination(APPLICATION_PATH . '/images');
         //$picture->setValueDisabled(true);
         
         
