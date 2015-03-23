@@ -16,7 +16,7 @@
             display: table;
             height: 100%;
             width: 100%;
-            min-width: 566px;
+            min-width: 1100px;
             background-color: #FFFFFF;
               /* just to make sure nothing bleeds background: grey;*/
         }
@@ -46,7 +46,8 @@
             width: 76%;
             min-width: 175px;
             height: 100%;
-            background-color: #FFF0FF;
+            overflow: scroll;
+            background-color: #FFFFFF;
                     /* ...as content is added (won't scroll) */
                    /* ...as content is added (won't scroll) */
                     
@@ -64,20 +65,465 @@
     </style>
 </head>
 <body>
-
+<div class="wrapper">
     
     <div class="well order">
-        <button type="button" onclick="showCategories()" class="btn btn-info btn-lg">Manage Categories</button> 
+        <button type="button" onclick="showCategories()" class="btn btn-info btn-lg btn-block">Manage Categories</button> 
+        <button type="button" onclick="showForums()" class="btn btn-info btn-lg btn-block">Manage Forums</button>
+        <button type="button" onclick="showUsers()" class="btn btn-info btn-lg btn-block">Manage Users</button>
     </div>
 
     <div id="view-content" class=" well page">
         
-        
     </div>
 
+</div>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    
+
 <script>
+       
+    var subCat = [];
+    
+    var allCategories;
+    
+    var allForums;
+    
+    var allUsers=[];
+    
+    var forumList;
+    function showForums()
+    {
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("GET" , "/hamham/hamham/public/admin/forumlist", true);
+            //ajaxRequest.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            
+            ajaxRequest1.send();
+        
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                finalAllProduct = ajaxRequest1.responseText.split("###");
+                allForums = JSON.parse(finalAllProduct[1]);
+                
+                div = document.querySelector("#view-content");
+                div.innerHTML = "";
+		for(i = 0 ; i < allForums.length;i++)
+                {
+                                     
+                    a =   "<div id='cat"+allForums[i].id+"' class=' well col-ms-12 col-lg-12 onlist' ><h3 id='name"+allForums[i].id+"'>"+allForums[i].name+"</h3>";
+                     
+                    b = "" ;
+                     
+                    for(j = 0 ; j < allForums[i].forums.length;j++)
+                    {
+                        emelent = allForums[i].forums[j];
+                        
+                        b += "<div class='col-xs-2'>";
+                        if(emelent.locked==0){
+                            b +="<button type='button' onclick='lockForum("+emelent.id+",this)'  class='up btn btn-danger btn-lg'> <span class='glyphicon glyphicon-lock'> Lock </button>";
+                        }else{
+                            b +="<button type='button' onclick='lockForum("+emelent.id+",this)'  class='up btn btn-success btn-lg'> <span class='glyphicon glyphicon-lock'> Unlock </button>";
+                        }
+                        
+                        if(emelent.parent_id==null){
+                            b+="<button type='button' onclick='insertForum("+allForums[i].id+","+emelent.id+")'  class='up btn btn-success btn-sm'> <span class='glyphicon glyphicon-plus'> ADD <br> SubForum</button> ";
+                        }
+                        
+                        //b+="<button type='button' onclick='deleteForum("+emelent.id+")'  class='up btn btn-danger btn-xs'> <span class='glyphicon glyphicon-remove'> </button> ";
+                        
+                        b += "</div>";                                     
+                        
+                        b += "<div id='forum"+emelent.id+"' class=' well col-xs-9' onclick='changeForumName("+emelent.id+",\""+emelent.name+"\")' style='cursor: pointer;'><h3 id='forum-name"+emelent.id+"'><label id='forumName"+emelent.id+"'>"+emelent.disp+"</label> </h3></div>"
+                    
+                        b += "<div class='col-xs-1'><button type='button' onclick='deleteForum("+emelent.id+")'  class='up btn btn-danger btn-xs'> <span class='glyphicon glyphicon-remove'> </button></div>";
+                    }
+                     
+                    b2 = "<div id='addForum"+allForums[i].id+"' class='well col-xs-12  product'  ><h3><button type='button' onclick='insertForum("+allForums[i].id+",null)'  class='up btn btn-success btn-lg'> <span class='glyphicon glyphicon-plus'> </button> ADD Forum</h3></div>"; 
+                     
+                    c = "</div>";
+                     
+                    div.innerHTML += a + b + b2 + c ;
+                    
+                }
+                
+                
+            }
+            };
+    }
+    
+    function showUsers()
+    {
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("GET" , "/hamham/hamham/public/admin/userlist", true);
+            //ajaxRequest.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            
+            ajaxRequest1.send();
+        
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                finalAllProduct = ajaxRequest1.responseText.split("###");
+                allUsers = JSON.parse(finalAllProduct[1]);
+                
+                div = document.querySelector("#view-content");
+                div.innerHTML = "<table id='display2' class='table table-bordered'><tr class='info'><td>Image</td><td>FirstName</td><td>LastName</td><td>UserName</td><td>Email</td><td>Birthday</td><td>Gender</td><td>Country</td><td></td></table>";
+		
+                table =  document.querySelector("#display2");
+                
+                for(i = 0 ; i < allUsers.length;i++)
+                {
+                    
+                    a = "<tr id='id"+allUsers[i].id+"'><td><img src='"+allUsers[i].profileimage+"' hight='100px' width='100px'></td><td class='firstname'>"+allUsers[i].firstname+"</td><td class='lastname'>"+allUsers[i].lastname+"</td><td class='username'>"+allUsers[i].username+"</td><td class='email'>"+allUsers[i].email+"</td><td class='birth_date'>"+allUsers[i].birth_date+"</td><td class='gender'>"+allUsers[i].gender+"</td><td class='country'>"+allUsers[i].country+"</td><td>";
+                
+                    a +="<button type='button' onclick='deleteUser("+allUsers[i].id+")'  class='btn btn-danger btn-xs btn-block'> <span class='glyphicon glyphicon-remove'> delete</button>";
+                    
+                    if(allUsers[i].banned !== "0000-00-00 00:00:00")
+                    {
+                        a +="<button type='button' onclick='deleteUser("+allUsers[i].id+")'  class='btn btn-danger btn-xs btn-block' disabled>Banned</button>";
+                    }else
+                    {
+                        a +="<button type='button' onclick='banUser("+allUsers[i].id+")'  class='btn btn-danger btn-xs btn-block'>Ban</button>";
+                    }
+                
+                    a +="<button type='button' onclick='deleteUser("+allUsers[i].id+")'  class='btn btn-info btn-xs btn-block'>Set Admin</button>";
+                
+                    a +="<button type='button' onclick='editUser("+allUsers[i].id+",this,"+i+")'  class='btn btn-default btn-xs btn-block'>Edit</button>";
+                
+                    b = "</td></tr>";
+                    
+                    table.innerHTML += a+b;
+                }
+                
+                //div.innerHTML += "</table>";
+                
+            }
+            };
+    }
+    
+    function editUser(id,button,index)
+    {
+        if(button.innerHTML=="Edit")
+        {
+            row = document.querySelector("#id"+id);
+            
+            temp = row.querySelector(".firstname").innerHTML;
+            
+            row.querySelector(".firstname").innerHTML = "<input id='firstname"+id+"' type='text' class='form-control' >";
+    
+            document.querySelector("#firstname"+id).value = temp;
+            
+            temp = row.querySelector(".lastname").innerHTML;
+            
+            row.querySelector(".lastname").innerHTML = "<input id='lastname"+id+"' type='text' class='form-control' >";
+    
+            document.querySelector("#lastname"+id).value = temp;
+            
+            temp = row.querySelector(".username").innerHTML;
+            
+            row.querySelector(".username").innerHTML = "<input id='username"+id+"' type='text' class='form-control' >";
+    
+            document.querySelector("#username"+id).value = temp;
+            
+            temp = row.querySelector(".email").innerHTML;
+            
+            row.querySelector(".email").innerHTML = "<input id='email"+id+"' type='text' class='form-control' >";
+    
+            document.querySelector("#email"+id).value = temp;
+            
+            temp = row.querySelector(".birth_date").innerHTML;
+            
+            row.querySelector(".birth_date").innerHTML = "<input id='birth_date"+id+"' type='text' class='form-control' >";
+    
+            document.querySelector("#birth_date"+id).value = temp;
+            
+            temp = row.querySelector(".gender").innerHTML;
+            
+            row.querySelector(".gender").innerHTML = "<input id='gender"+id+"' type='text' class='form-control' >";
+    
+            document.querySelector("#gender"+id).value = temp;
+            
+            temp = row.querySelector(".country").innerHTML;
+            
+            row.querySelector(".country").innerHTML = "<input id='country"+id+"' type='text' class='form-control' >";
+    
+            document.querySelector("#country"+id).value = temp;
+            
+            button.innerHTML = "Save";
+        }
+        else
+        {
+            if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/admin/edituser", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            
+    
+            firstname = document.querySelector("#firstname"+id).value;
+ 
+            lastname = document.querySelector("#lastname"+id).value;
+            
+            username = document.querySelector("#username"+id).value;
+            
+            email = document.querySelector("#email"+id).value;
+            
+            birth_date = document.querySelector("#birth_date"+id).value;
+            
+            gender = document.querySelector("#gender"+id).value;
+            
+            country = document.querySelector("#country"+id).value;
+            
+            
+            strr = "id="+id+"&firstname="+firstname+"&lastname="+lastname+"&username="+username+"&email="+email+"&birth_date="+birth_date+"&gender="+gender+"&country="+country
+            
+            alert(strr);
+            
+            ajaxRequest1.send("id="+id+"&firstname="+firstname+"&lastname="+lastname+"&username="+username+"&email="+email+"&birth_date="+birth_date+"&gender="+gender+"&country="+country);
+       
+       
+       
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+            button.innerHTML = "Edit";
+            
+            row = document.querySelector("#id"+id);
+            
+            row.querySelector(".firstname").innerHTML = document.querySelector("#firstname"+id).value;
+    
+            
+            row.querySelector(".lastname").innerHTML = document.querySelector("#lastname"+id).value;
+            
+            row.querySelector(".username").innerHTML = document.querySelector("#username"+id).value;
+            
+            row.querySelector(".email").innerHTML = document.querySelector("#email"+id).value;
+            
+            row.querySelector(".birth_date").innerHTML = document.querySelector("#birth_date"+id).value;
+            
+            row.querySelector(".gender").innerHTML = document.querySelector("#gender"+id).value;
+            
+            row.querySelector(".country").innerHTML = document.querySelector("#country"+id).value;
+            }
+            };
+            
+            
+            
+            
+            
+            
+            
+            
+     
+       
+        }
+    }
+    
+    function changeForumName(id,oldName)
+    {
+        var newName = prompt("New Name", oldName);
+        
+        if(newName == null) {
+            return ;
+        } 
+        newName = newName.trim();
+        if(newName == "")
+        {
+            alert("name can't be empty");
+            return;
+        }
+        
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/admin/editforum", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            
+             ajaxRequest1.send("id="+id+"&name="+newName);
+                //button.innerHTML = "<span class='glyphicon glyphicon-lock'> Lock";
+            
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                showForums();
+            }
+            };
+    }
+    
+    function insertForum(id,parent_id)
+    {
+        if(parent_id)
+        {
+            subCat[id]=parent_id;
+            str = 'New Sub-Forum';
+        }else
+        {
+            subCat[id]=null;
+            str = 'New Forum';
+        }
+    
+        addingForm = document.querySelector("#addForum"+id);
+        
+        addingForm.innerHTML ="<div class='form-group'><label for='exampleInputEmail1'>"+str+"</label><input type='text' id='newforum"+id+"' class=' form-control ' placeholder='Enter forum name'></div>";
+    
+        addingForm.innerHTML +="<h3><button type='button' onclick='addForum("+id+")'  class='btn btn-success btn-xs'> ADD Forum </button> <button type='button' onclick='cancelForum("+id+")'  class='btn btn-danger btn-ms'>Cancel</button></h3>";
+    
+    }
+    
+    
+    function deleteForum(id)
+    {
+        var r = confirm("Are you sure you want to delete this forum");
+        if (r == false) {
+            return;
+        } 
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/admin/editforum", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            
+            
+            
+        
+            
+                ajaxRequest1.send("id="+id+"&deleted=1");
+                //button.innerHTML = "<span class='glyphicon glyphicon-lock'> Lock";
+            
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                showForums();
+            }
+            };
+    }
+    
+    function addForum(id)
+    {
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/admin/forumadd", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            trimmed = document.querySelector("#newforum"+id).value.trim();
+            if(trimmed==""){
+                alert("name can't be empty");
+                return;
+            }
+            
+            parent = ""
+            if(subCat[id])
+            {
+                parent = "&parent_id="+subCat[id];
+            }
+            
+            ajaxRequest1.send("locked=1&category_id="+id+"&name="+document.querySelector("#newforum"+id).value.trim()+parent);
+        
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                finalAllProduct = ajaxRequest1.responseText.split("###");
+                showForums();
+                //allProducts = JSON.parse(finalAllProduct[1]);
+                
+                //if(allProducts.validity){}
+            }
+            };
+    }
+    
+    function cancelForum(id)
+    {
+       addingForm = document.querySelector("#addForum"+id);
+       
+       addingForm.innerHTML = "<h3><button type='button' onclick='insertForum("+id+")'  class='up btn btn-success btn-lg'> <span class='glyphicon glyphicon-plus'> </button> ADD Forum</h3>";
+    }
+    
+    function lockForum(id,button)
+    {
+        
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/admin/editforum", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            
+            
+            
+        
+            if(button.getAttribute("class")=='up btn btn-danger btn-lg')
+            {
+                ajaxRequest1.send("locked=1&id="+id);
+                //button.innerHTML = "<span class='glyphicon glyphicon-lock'> Unlock";
+            }
+            else
+            {
+                ajaxRequest1.send("locked=0&id="+id);
+                //button.innerHTML = "<span class='glyphicon glyphicon-lock'> Lock";
+            }
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                if(button.getAttribute("class")=='up btn btn-danger btn-lg')
+                {
+                    button.setAttribute("class","up btn btn-success btn-lg") ;
+                    button.innerHTML = "<span class='glyphicon glyphicon-lock'> Unlock";
+                    showForums();
+                }
+                else
+                {
+                    button.setAttribute("class","up btn btn-danger btn-lg") ;
+                    button.innerHTML = "<span class='glyphicon glyphicon-lock'> Lock";
+                }
+            }
+            };
+        
+        
+        
+    }
     
     function showCategories()
     {
@@ -99,18 +545,169 @@
             if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
                 
                 finalAllProduct = ajaxRequest1.responseText.split("###");
-                allProducts = JSON.parse(finalAllProduct[1]);
+                allCategories = JSON.parse(finalAllProduct[1]);
                 
                 div = document.querySelector("#view-content");
                 div.innerHTML = "";
-		for(i = 0 ; i < allProducts.length;i++)
+		for(i = 0 ; i < allCategories.length;i++)
                 {
-                    div.innerHTML +=   "<div class='well col-lg-6  onlist'  onclick='' style='cursor: pointer;'><h3>"+allProducts[i].name+"</h3></div>";
+                    div.innerHTML +=   "<div class='col-ms-2 col-lg-2 ' ><button type='button' onclick='deleteCategory("+allCategories[i].id+")'  class='btn btn-danger btn-xs'> Delete </button><button type='button' onclick='editCategory("+allCategories[i].id+",this)'  class='btn btn-primary btn-ms'> Edit </button></div>"
+                    
+                    div.innerHTML +=   "<div id='cat"+allCategories[i].id+"' class=' well col-ms-10 col-lg-10 onlist' ><h3 id='name"+allCategories[i].id+"'>"+allCategories[i].name+"</h3></div>";
+                    
+                    
                 }
+                div.innerHTML += "<div id='addCategory' class='well col-xs-12  product'  ><h3><button type='button' onclick='insertCategory()'  class='up btn btn-success btn-lg'> <span class='glyphicon glyphicon-plus'> </button> ADD Category</h3></div>";
             }
             };
     }
 
+    function insertCategory()
+    {
+        addingForm = document.querySelector("#addCategory");
+        
+        addingForm.innerHTML ="<div class='form-group'><label for='exampleInputEmail1'>New Category</label><input type='text' id='cat-name' class='form-control' placeholder='Enter category name'></div>";
+    
+        addingForm.innerHTML +="<h3><button type='button' onclick='addCategory()'  class='btn btn-success btn-lg'> ADD Category </button> <button type='button' onclick='cancelCategory()'  class='btn btn-danger btn-lg'>Cancel</button></h3>";
+    }
+    
+    function cancelCategory()
+    {
+        
+        addingForm = document.querySelector("#addCategory");
+        
+        addingForm.innerHTML = "<h3><button type='button' onclick='insertCategory()'  class='up btn btn-success btn-lg'> <span class='glyphicon glyphicon-plus'> </button> ADD Category</h3>";
+    }
+    
+    function addCategory()
+    {
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/admin/categoryadd", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            trimmed = document.querySelector("#cat-name").value.trim();
+            if(trimmed==""){
+                alert("name can't be empty");
+                return;
+            }
+            
+            ajaxRequest1.send("name="+document.querySelector("#cat-name").value.trim());
+        
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                finalAllProduct = ajaxRequest1.responseText.split("###");
+                allProducts = JSON.parse(finalAllProduct[1]);
+                if(allProducts.validity){
+                    showCategories();
+                }else
+                {
+                    alert("Invalid name");
+                }
+            }
+            };
+        
+    }
+    
+    function deleteCategory(id)
+    {
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/admin/categorydelete", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            
+            
+            ajaxRequest1.send("id="+id);
+            
+            
+           
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                finalAllProduct = ajaxRequest1.responseText.split("###");
+                allProducts = JSON.parse(finalAllProduct[1]);
+                
+                    showCategories();
+                
+            }
+            };
+    }
+    
+    function editCategory(id,button)
+    {
+        button.outerHTML = "<button type='button' onclick='saveCategory("+id+",this)'  class='btn btn-default btn-lg'> Save </button>";
+        
+        current = document.querySelector("#name"+id).innerHTML ;
+        
+        document.querySelector("#cat"+id).innerHTML = "<input id='newname"+id+"' type='text' class='form-control' >";
+    
+        document.querySelector("#newname"+id).value = current;
+    }
+    
+    function saveCategory(id,button)
+    {
+        theNewName = document.querySelector("#newname"+id).value;
+        
+        trimmed = theNewName.trim();
+        
+        if(trimmed==""){
+            alert("name can't be empty");
+            return;
+        }
+        
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/admin/categoryedit", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            
+            
+            ajaxRequest1.send("id="+id+"&name="+theNewName.trim());
+        
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                finalAllProduct = ajaxRequest1.responseText.split("###");
+                allProducts = JSON.parse(finalAllProduct[1]);
+                if(allProducts.validity){
+                    button.outerHTML = "<button type='button' onclick='editCategory("+id+",this)'  class='btn btn-primary btn-lg'> Edit </button>";
+        
+                    document.querySelector("#cat"+id).innerHTML = "<h3 id='name"+id+"'>"+theNewName+"</h3>"
+                }else
+                {
+                    alert("Invalid name");
+                }
+            }else if( ajaxRequest1.readyState === 4 && ajaxRequest1.status === 500)
+            {
+                alert("Name already exists");
+            }
+            };
+        
+        
+        
+        
+        
+    }
 </script>
 </body>
 </html>
