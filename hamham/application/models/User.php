@@ -50,5 +50,10 @@ class Application_Model_User extends Zend_Db_Table_Abstract
         $where[] = "deleted = 0";
         return $this->fetchAll($where)->toArray();  
     }
+    
+    function editUser($data){
+        return $this->update($data, "id=".$data['id']);
+    }
+    
 }
 
