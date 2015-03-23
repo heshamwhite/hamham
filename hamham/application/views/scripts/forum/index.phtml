@@ -1,4 +1,115 @@
-<br /><br />
-<div id="view-content">
-	<p>View script for controller <b>Forum</b> and script/action name <b>index</b></p>
-</div>
+<?php 
+try {
+$_SESSION["admin"] = "lol";
+?>
+
+
+
+
+<?php 
+if(!isset($this->Forum)){  header("Location:".$this->baseUrl()."/Error/pagenotvalid/"); die(); }
+if($this->Forum['deleted']==1){ header("Location:".$this->baseUrl()."/Error/pagenotvalid/"); die();}
+?>
+
+<h> <?php echo $this->Forum['name']; ?></h>
+<br>
+<a href="<?php echo $this->baseUrl()?>/Index/">YumYum</a>    
+<?php
+if(isset($this->Parent)){
+    ?>
+    
+     <a href="<?php echo $this->baseUrl()?>/Forum/index/id/<?php echo $this->Parent['id'];?>"><?php echo $this->Parent['name'];?></a>    
+     <br/>
+    <?php
+}
+
+
+
+if(isset($this->SubForums)){?>
+
+    <table border="1">
+        <tr><th>sub-Forums : <?php echo $this->Forum['name'];?></th></tr>
+        
+<?php foreach ($this->SubForums as $key=>$value){ ?>
+        <tr>
+            <td> 
+        <a href="<?php echo $this->baseUrl()?>/Forum/index/id/<?php echo $value['id'];?>"><?php echo $value['name'];?></a>
+            </td>
+        </tr>
+            
+<?php } ?>
+    </table>
+<?php
+}
+
+?>
+     <?php $forumID = $this->Forum["id"] ;
+
+     
+     if($this->Forum["locked"]=="0") {
+     ?>
+     <form action="<?php echo $this->baseUrl()?>/Post/add/" method="post">
+         <input type="hidden" value="<?php echo $forumID;?>" name="forum"/>
+         <input type="submit" value="add Post"/>
+     </form>
+     <?php } ?>
+     <table border="1">
+        <tr><th>Forum Subjects : <?php echo $this->Forum['name'];?></th></tr>
+     <?php 
+if(isset($this->StickyPosts)){
+    
+    
+   
+    foreach ($this->StickyPosts as $key=>$value){ ?>
+    
+        <tr>
+            <td> 
+               <?php if(isset($_SESSION["admin"])){ ?> 
+            <a href="<?php echo $this->baseUrl()?>/Post/sticky/id/<?php echo $value['id'];?>">Remove Sticky</a>
+     <?php } ?>sticky:<a href="<?php echo $this->baseUrl()?>/Post/index/id/<?php echo $value['id'];?>"><?php echo $value['title'];?></a>
+     
+               <br> date  <?php echo $value['date']; ?> by <?php  
+                   $user = new Application_Model_User();
+                   $user_data = $user->getUserById($value['user_id']);
+                   ?>
+               <a href="<?php echo $this->baseUrl()?>/User/index/id/<?php echo $value['user_id'];?>"><?php 
+                echo $user_data['firstname'].' '.$user_data['lastname'];  ?></a> 
+                
+            </td>
+        </tr>
+    
+<?php
+    }
+
+    
+    
+}
+
+if(isset($this->NotStickyPosts)){
+   
+    foreach ($this->NotStickyPosts as $key=>$value){?>
+        <tr>
+            <td><?php if(isset($_SESSION["admin"])){ ?> 
+            <a href="<?php echo $this->baseUrl()?>/Post/sticky/id/<?php echo $value['id'];?>">add Sticky</a>
+     <?php } ?><a href="<?php echo $this->baseUrl()?>/Post/index/id/<?php echo $value['id'];?>"><?php echo $value['title'];?></a>
+               <br> date  <?php echo  $value['date']; ?> by <?php  
+                   $user = new Application_Model_User();
+                   $user_data = $user->getUserById($value['user_id']);
+                   ?>
+               <a href="<?php echo $this->baseUrl()?>/User/index/id/<?php echo $value['user_id'];?>"><?php 
+                echo $user_data['firstname'].' '.$user_data['lastname'];  ?></a> 
+            </td>
+        </tr>
+    
+<?php
+    
+    }
+}
+?>
+ </table>
+     <?php }  catch (Exception $exp){
+         
+        header("Location:".$this->baseUrl()."/Error/pagenotvalid/");
+        die();
+         
+     }?>

@@ -13,5 +13,11 @@ class Application_Model_UserType extends Zend_Db_Table_Abstract
         return $result;
 
     }
+    
+        function getUserTypeById($id){       
+        $where[] = "id = $id";
+        $where[] = "deleted = 0";
+        return $this->fetchAll($where)->toArray();
+    }
 
 }

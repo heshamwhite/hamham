@@ -48,6 +48,7 @@ class AuthenticationController extends Zend_Controller_Action
                 }else{
                     $this->view->form = $form;
                     echo "Username/Password is incorrect";
+                    
                 }
            }
        }

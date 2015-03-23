@@ -10,13 +10,7 @@ class ForumController extends Zend_Controller_Action
 
     public function indexAction()
     {
-        // action body
-    }
-
-    public function listAction()
-    {
-        // action body
-                        
+        // action body                    
         // forum/1
         //check paramter Forum exist 
         //and it's value is number 
@@ -29,7 +23,9 @@ class ForumController extends Zend_Controller_Action
             $Current = $Forum->getForumById($Forum_id);
             if (!empty($Current)) {
                 $this->view->Forum = $Current[0];
-               
+                
+                
+                
                 if(!empty($Current[0]['parent_id'])){
                     
                     $Parent = $Forum->getForumById($Current[0]['parent_id']);
@@ -42,31 +38,35 @@ class ForumController extends Zend_Controller_Action
                     $this->view->SubForums = $SubForums;
                 }
                
+               
+               
                  $Post = new Application_Model_Post();
                 //get  sticky forum's posts
                 $StickyPosts = $Post->getStickyPostsByForumsId($Forum_id);
-                if (!empty($SubForums)) {
+                if (!empty($StickyPosts)) {
                     $this->view->StickyPosts = $StickyPosts;
                 }
                 
                //get  not sticky forum's posts
                 $NotStickyPosts = $Post->getNotStickyPostsByForumsId($Forum_id);
-                if (!empty($SubForums)) {
+                if (!empty($NotStickyPosts)) {
                     $this->view->NotStickyPosts = $NotStickyPosts;
                 }
                 
-                
+              
                                
             } else {
-                $this->_helper->viewRenderer('Error/', null, true);
+                $this->_redirect('/Error/pagenotvalid/');
+                //$this->_helper->viewRenderer('Error/', null, true);
             }
             
         }else {
-                $this->_helper->viewRenderer('Error', null, true);
+                $this->_redirect('/Error/pagenotvalid/');
+                //$this->_helper->viewRenderer('Error', null, true);
         }
-
     }
 
+    
 
 }
 

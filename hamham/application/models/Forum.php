@@ -19,25 +19,19 @@ class Application_Model_Forum extends Zend_Db_Table_Abstract
     }
     
     function listForums(){
-        
-        return $this->fetchAll()->toArray();
+        $where[] = "deleted = 0";
+        return $this->fetchAll($where)->toArray();;
     }
-    
-    function deleteForum($id){
-        return $this->delete("id=$id");
-    }
-    
-    function editForum($data){
-        return $this->update($data, "id=".$data['id']);
-    
-    }
-    
-    function getForumById($id){
-        return $this->find($id)->toArray();
+
+    function getForumById($id){       
+        $where[] = "id = $id";
+        $where[] = "deleted = 0";
+        return $this->fetchAll($where)->toArray();
     }
     
     function getSubForumsById($id){
         $where[] = "parent_id = $id";
+        $where[] = "deleted = 0";
         return $this->fetchAll($where)->toArray();
     }    
     
