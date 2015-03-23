@@ -26,7 +26,7 @@ if(isset($this->Categories)){
                     <tr>
                         <td> 
                            
-                            <b><a href="<?php echo $Forumvalue['id'];?>"><?php echo $Forumvalue['name'];?></a></b>
+                            <b><a href="<?php echo $this->baseUrl()?>/Forum/index/id/<?php echo $Forumvalue['id'];?>"><?php echo $Forumvalue['name'];?></a></b>
                             
                             
                             <?php
@@ -34,7 +34,8 @@ if(isset($this->Categories)){
                             if(!empty($SubForum)){
                                 foreach ($SubForum as $SubForumkey=>$SubForumvalue){
                                    ?>
-                                     <a href="<?php echo $SubForumvalue['id'];?>"><?php echo $SubForumvalue['name'];?></a>   
+                            
+                                     <a href="<?php echo $this->baseUrl()?>/Forum/index/id/<?php echo $SubForumvalue['id'];?>"><?php echo $SubForumvalue['name'];?></a>   
                                     <?php
                                     
                                 }
