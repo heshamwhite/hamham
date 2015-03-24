@@ -18,8 +18,10 @@ class UserController extends Zend_Controller_Action
     public function bannAction()
     {
         $User_id =  $this->_request->getParam("id") ;
+        $period =  $this->_request->getParam("period") ;
+       
         
-        if($User_id && ctype_digit($User_id)){
+        if($User_id && ctype_digit($User_id) && $period  && ctype_digit($period )){
             
                 $auth = Zend_Auth::getInstance();
                 $user_info = $auth->getIdentity();
@@ -29,8 +31,10 @@ class UserController extends Zend_Controller_Action
                     $UserModel = new Application_Model_User();
                     $Current = $UserModel->getUserByID($User_id);
                     $data['id']=$User_id;
-                    $date = date('Y-m-d', strtotime(date().' + 7 days'));
-                    $data['banned']= $date;
+                    $now   = new DateTime;
+                    $str = "+".$period ." day";
+                    $now->modify($str);
+                    $data['banned']= $now->format( 'Y-m-d' );
                     $UserModel->editUser($data);
                     $this->_redirect("/Index/index/"); 
                 }
