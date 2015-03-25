@@ -10,10 +10,39 @@ class UserController extends Zend_Controller_Action
 
     public function indexAction()
     {
-        
        
     }
+    
 
+    public function bannAction()
+    {
+        $User_id =  $this->_request->getParam("id") ;
+        $period =  $this->_request->getParam("period") ;
+       
+        
+        if($User_id && ctype_digit($User_id) && $period  && ctype_digit($period )){
+            
+                $auth = Zend_Auth::getInstance();
+                $user_info = $auth->getIdentity();
+                $user_info->id = "1";
+                
+                if ($user_info) {
+                    $UserModel = new Application_Model_User();
+                    $Current = $UserModel->getUserByID($User_id);
+                    $data['id']=$User_id;
+                    $now   = new DateTime;
+                    $str = "+".$period ." day";
+                    $now->modify($str);
+                    $data['banned']= $now->format( 'Y-m-d' );
+                    $UserModel->editUser($data);
+                    $this->_redirect("/Index/index/"); 
+                }
+        }
+           
+           $this->_redirect('/Error/pagenotvalid/');
+        
+    }
+    
     public function registerAction()
     {
         if(!$this->view->logRed){

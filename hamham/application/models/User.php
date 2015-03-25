@@ -22,14 +22,20 @@ class Application_Model_User extends Zend_Db_Table_Abstract
         $hour = 0;
         $minute =0;
         $mydob =strtotime("$year-$month-$day $hour:$minute");
-        echo "$year-$month-$day $hour:$minute  %%%";
-        echo $mydob;
+        //echo "$year-$month-$day $hour:$minute  %%%";
+        //echo $mydob;
         $row->birth_date = "$year-$month-$day $hour:$minute";
         return $row->save();
     }
     function getUserByID($id){
         $myUser = new Application_Model_User();
         $row = $myUser->fetchRow($myUser->select()->where('id = ?', $id));
+        //var_dump($row);
+        return $row->toArray();
+    }
+    function getUserByUsername($username){
+        $myUser = new Application_Model_User();
+        $row = $myUser->fetchRow($myUser->select()->where('username = ?', $username));
         //var_dump($row);
         return $row->toArray();
     }
@@ -50,5 +56,10 @@ class Application_Model_User extends Zend_Db_Table_Abstract
         $where[] = "deleted = 0";
         return $this->fetchAll($where)->toArray();  
     }
+    
+    function editUser($data){
+        return $this->update($data, "id=".$data['id']);
+    }
+    
 }
 

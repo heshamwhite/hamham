@@ -27,25 +27,31 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         $view->headScript()->prependFile('/js/site.js');
         
         $authorization = Zend_Auth::getInstance();
+//        if(!$authorization->hasIdentity()) {
+//             echo 'Hello, Guest';
+//            //echo "Error";
+//           //$this->redirect("Auth/index"); 
+//             $frontCtrl = Zend_Controller_Front::getInstance();
+//             //$frontCtrl->redirect("Auth");
+//             $view->logRed = 1;
+//            
+//            //PostController::goHere();
+//        }
+//        else{
+//            echo "hello ";
+//            echo ($authorization->getIdentity()->username);
+//            echo "<a href='/hamham/hamham/public/User/logout'> Logout </a>";
+//            
+//            //$view->myheader = "hello ".($authorization->getIdentity()->email)."<a href='fsds.php'> Logout </a>";
+//            
+//         }
+         
+         
         if(!$authorization->hasIdentity()) {
-             echo 'Hello, Guest';
-            //echo "Error";
-           // $this->redirect("Auth/index"); 
-             $frontCtrl = Zend_Controller_Front::getInstance();
-             //$frontCtrl->redirect("Auth");
+            $frontCtrl = Zend_Controller_Front::getInstance();
              $view->logRed = 1;
-            
-            //PostController::goHere();
         }
-        else{
-            echo "hello ";
-            echo ($authorization->getIdentity()->username);
-            echo "<a href='/hamham/hamham/public/User/logout'> Logout </a>";
-            
-            //$view->myheader = "hello ".($authorization->getIdentity()->email)."<a href='fsds.php'> Logout </a>";
-            
-         }
-        
+         
     }
 //    protected function _initDoctype()
 //    {

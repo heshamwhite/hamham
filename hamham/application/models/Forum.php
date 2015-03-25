@@ -40,6 +40,13 @@ class Application_Model_Forum extends Zend_Db_Table_Abstract
         $where[] = "deleted = 0";
         return $this->fetchAll($where)->toArray();
     }
+   
+    function getMainForumsByCategoryId($id){
+        $where[] = "category_id = $id";
+        $where[] = "parent_id IS NULL";
+        $where[] = "deleted = 0";
+        return $this->fetchAll($where)->toArray();
+    }
     
     function getSubForumsByCategoryId($id){
         $where[] = "category_id = $id";

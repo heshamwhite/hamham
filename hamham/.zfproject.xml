@@ -20,7 +20,7 @@
       </formsDirectory>
       <layoutsDirectory enabled="false"/>
       <modelsDirectory>
-        <modelFile modelName="System"/>
+        <modelFile modelName="UserFacebook"/>
       </modelsDirectory>
       <modulesDirectory enabled="false"/>
       <servicesDirectory enabled="false"/>

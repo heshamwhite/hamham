@@ -8,6 +8,63 @@ class PostController extends Zend_Controller_Action
         /* Initialize action controller here */
     }
 
+    public function lockAction()
+    {
+        $Post_id =  $this->_request->getParam("id") ;
+        
+        if($Post_id && ctype_digit($Post_id)){
+            
+                $auth = Zend_Auth::getInstance();
+                $user_info = $auth->getIdentity();
+                $user_info->id = "1";
+                
+                if ($user_info) {
+                    
+                    $PostModel = new Application_Model_Post();
+                    $Current = $PostModel->getMainPostById($Post_id);
+                    $data['id']=$Post_id;
+                    if($Current[0]['locked']==1)
+                    $data['locked']= "0";
+                    else $data['locked']= "1";
+                    $PostModel->editPost($data);
+                    $this->_redirect("/Post/index/id/$Post_id"); 
+                }
+  
+        }
+           
+           $this->_redirect('/Error/pagenotvalid/');
+        
+    }
+    
+    public function deleteAction()
+    {
+        $Post_id =  $this->_request->getParam("id") ;
+        
+        if($Post_id && ctype_digit($Post_id)){
+            
+                $auth = Zend_Auth::getInstance();
+                $user_info = $auth->getIdentity();
+                $user_info->id = "1";
+                
+                if ($user_info) {
+                    
+                    $PostModel = new Application_Model_Post();
+                    $Current = $PostModel->getMainPostById($Post_id);
+                    $data['id']=$Post_id;
+                    if($Current[0]['deleted']==1)
+                    $data['deleted']= "0";
+                    else $data['deleted']= "1";
+                    $PostModel->editPost($data);
+                    $link = "/Forum/index/id/".$Current[0]['forum_id'];
+                    $this->_redirect($link); 
+                }
+  
+        }
+           
+           $this->_redirect('/Error/pagenotvalid/');
+        
+    }
+    
     public function indexAction()
     {
          $Post_id =  $this->_request->getParam("id") ;
