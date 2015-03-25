@@ -4,13 +4,50 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>Ham Ham Kitchen</title>
-    HAM HAM Kitchen Header
+    
 </head>
 <body>
- 
+    <div id="hamhamheader">
+        
+        HAM HAM Kitchen 
+        <?php
+            $authorization = Zend_Auth::getInstance();
+            if(!$authorization->hasIdentity()) {
+                $auth = TBS\Auth::getInstance();
+                if (!$auth->hasIdentity()) {
+                    
+                
+                ?>
+                    <a href="/hamham/hamham/public/Authentication">Login</a>
+                    <a href="/hamham/hamham/public/Authentication/login2">Login With Facebook</a>
+                <?php
+                }
+                else{
+                    
+                    $thisUserFB = $auth->getIdentity();
+                    foreach ($thisUserFB as $provider){
+                        $facebookData = $provider->getApi()->getProfile();
+                        $profileimage = $provider->getApi()->getPicture();
+                        $profileFbLink = $facebookData['link'];
+                        echo 'hello,'.$facebookData['name'];
+                        echo "<img src='$profileimage'>";
+                        echo "<a href='$profileFbLink'> Profile Page </a>";
+                        echo "<a href='/hamham/hamham/public/Authentication/logout'> Logout </a>";
+                    }
+                }
+            }
+            else{
+                echo 'Hello,'.($authorization->getIdentity()->username);
+                $profileimage = "/hamham/hamham/public/images/users/".$authorization->getIdentity()->profileimage;
+                echo "<img src='$profileimage' width='50' height='50'>";
+                echo "<a href='/hamham/hamham/public/User/logout'> Logout </a>";
+                echo "<a href='/hamham/hamham/public/User/profilepage'> Profile Page </a>";
+            }
+        ?>
+    </div>
 <?php echo $this->layout()->content ?>
  
-    <div>
+    <div id="hamhamfooter">
         HAM HAM Kitchen Footer
     </div>
 </body>
