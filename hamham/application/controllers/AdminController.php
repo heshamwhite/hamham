@@ -24,6 +24,29 @@ class AdminController extends Zend_Controller_Action
         return $ret;
     }
     
+    public function systemstateAction()
+    {
+        echo '###';
+        $system_model = new Application_Model_System();
+        //$this->view->categories = $category_model->listCategories();
+        
+        $this->_helper->json($system_model->systemState());
+    }
+    
+    public function systemstatechangeAction()
+    {
+        echo '###';
+        $system_model = new Application_Model_System();
+        
+        $state = $this->_request->getParam('state');
+        if(isset($state))
+        {
+            $data['state']= $state;
+        }
+        $this->_helper->json($system_model->editSystem($data));
+        echo '###';
+    }
+    
     public function editforumAction()
     {
         echo '###';
@@ -165,6 +188,21 @@ class AdminController extends Zend_Controller_Action
         if(isset($gender))
         {
             $data['gender']= $gender;
+        }
+        $deleted = $this->_request->getParam('deleted') ;
+        if(isset($deleted))
+        {
+            $data['deleted']= $deleted;
+        }
+        $confirmed = $this->_request->getParam('confirmed') ;
+        if(isset($confirmed))
+        {
+            $data['confirmed']= $confirmed;
+        }
+        $is_admin = $this->_request->getParam('is_admin') ;
+        if(isset($is_admin))
+        {
+            $data['is_admin']= $is_admin;
         }
         $country = $this->_request->getParam('country') ;
         if(isset($country))

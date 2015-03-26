@@ -64,13 +64,18 @@
         }
     </style>
 </head>
-<body>
+<body onload="systemState()">
+    
+
+    
+    
 <div class="wrapper">
     
     <div class="well order">
         <button type="button" onclick="showCategories()" class="btn btn-info btn-lg btn-block">Manage Categories</button> 
         <button type="button" onclick="showForums()" class="btn btn-info btn-lg btn-block">Manage Forums</button>
         <button type="button" onclick="showUsers()" class="btn btn-info btn-lg btn-block">Manage Users</button>
+        <button id="sys" type="button" onclick="systemChange()" class="btn btn-default btn-lg btn-block"> <span class='glyphicon glyphicon-off'> System ()</button>
     </div>
 
     <div id="view-content" class=" well page">
@@ -91,7 +96,81 @@
     
     var allUsers=[];
     
-    var forumList;
+    var forumList=[];
+    
+    function systemChange()
+    {
+        state = 1;
+        button = document.querySelector("#sys");
+        currentClass = button.getAttribute("class")
+        if(currentClass =='btn btn-success btn-lg btn-block')
+        {
+            state = 0;
+        }else
+        {
+            state = 1;
+        }
+        
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/admin/systemstatechange", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            
+             ajaxRequest1.send("state="+state);
+                //button.innerHTML = "<span class='glyphicon glyphicon-lock'> Lock";
+            
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                systemState();
+            }
+            };
+    }
+    
+    function systemState()
+    {
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/admin/systemstate", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            
+             ajaxRequest1.send();
+                //button.innerHTML = "<span class='glyphicon glyphicon-lock'> Lock";
+            
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                finalAllProduct = ajaxRequest1.responseText.split("###");
+                system = JSON.parse(finalAllProduct[1]);
+                button = document.querySelector("#sys");
+                if(system[0].state==1)
+                {
+                    button.setAttribute("class","btn btn-success btn-lg btn-block");
+                    button.innerHTML = " <span class='glyphicon glyphicon-off'> System (On)" ;
+                }
+                else if(system[0].state==0)
+                {
+                    button.setAttribute("class","btn btn-danger btn-lg btn-block");
+                    button.innerHTML = " <span class='glyphicon glyphicon-off'> System (Off)"
+                }
+            }
+            };
+    }
+    
     function showForums()
     {
         if(window.XMLHttpRequest) {
@@ -116,16 +195,21 @@
                 
                 div = document.querySelector("#view-content");
                 div.innerHTML = "";
+                forumList = [];
 		for(i = 0 ; i < allForums.length;i++)
                 {
                                      
                     a =   "<div id='cat"+allForums[i].id+"' class=' well col-ms-12 col-lg-12 onlist' ><h3 id='name"+allForums[i].id+"'>"+allForums[i].name+"</h3>";
                      
                     b = "" ;
-                     
+                    
+                    
+                    
                     for(j = 0 ; j < allForums[i].forums.length;j++)
                     {
                         emelent = allForums[i].forums[j];
+                        
+                        forumList.push(emelent);
                         
                         b += "<div class='col-xs-2'>";
                         if(emelent.locked==0){
@@ -196,14 +280,24 @@
                     
                     if(allUsers[i].banned !== "0000-00-00 00:00:00")
                     {
-                        a +="<button type='button' onclick='deleteUser("+allUsers[i].id+")'  class='btn btn-danger btn-xs btn-block' disabled>Banned</button>";
+                        a +="<button type='button' onclick='banUser("+allUsers[i].id+")'  class='btn btn-danger btn-lg btn-block'><span class='glyphicon glyphicon-ban-circle'> Banned</button>";
                     }else
                     {
                         a +="<button type='button' onclick='banUser("+allUsers[i].id+")'  class='btn btn-danger btn-xs btn-block'>Ban</button>";
                     }
                 
-                    a +="<button type='button' onclick='deleteUser("+allUsers[i].id+")'  class='btn btn-info btn-xs btn-block'>Set Admin</button>";
+                    if(allUsers[i].confirmed == 0)
+                    {
+                        a +="<button type='button' onclick='confirmUser("+allUsers[i].id+")'  class='btn btn-success btn-ms btn-block'><span class='glyphicon glyphicon-ok'> Confirm</button>";
+                    }
                 
+                    if(allUsers[i].is_admin == 0)
+                    {
+                        a +="<button type='button' onclick='promoteUser("+allUsers[i].id+",this)'  class='btn btn-info btn-xs btn-block'>Set Admin</button>";
+                    }else if(allUsers[i].is_admin == 1)
+                    {
+                        a +="<button type='button' onclick='promoteUser("+allUsers[i].id+",this)'  class='btn btn-warning btn-xs btn-block'>Set Normal</button>";
+                    }
                     a +="<button type='button' onclick='editUser("+allUsers[i].id+",this,"+i+")'  class='btn btn-default btn-xs btn-block'>Edit</button>";
                 
                     b = "</td></tr>";
@@ -213,6 +307,91 @@
                 
                 //div.innerHTML += "</table>";
                 
+            }
+            };
+    }
+    
+    function confirmUser(id)
+    {
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/admin/edituser", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            
+             ajaxRequest1.send("id="+id+"&confirmed=1");
+                //button.innerHTML = "<span class='glyphicon glyphicon-lock'> Lock";
+            
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                showUsers();
+            }
+            };
+    }
+    
+    function promoteUser(id,button)
+    {
+        is_admin = 1;
+        
+        if(button.innerHTML=="Set Admin")
+        {
+            is_admin=1;
+        }else if(button.innerHTML=="Set Normal")
+        {
+            is_admin = 0;
+        }
+        
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/admin/edituser", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            
+             ajaxRequest1.send("id="+id+"&is_admin="+is_admin);
+                //button.innerHTML = "<span class='glyphicon glyphicon-lock'> Lock";
+            
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                showUsers();
+            }
+            };
+    }
+    
+    function deleteUser(id)
+    {
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/admin/edituser", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            //xmlhttp.setRequestHeader("X-CSRFToken",'dMTISkUIa4DOT7M3zM2SKpuYlHAtDnYo');
+            
+             ajaxRequest1.send("id="+id+"&deleted=1");
+                //button.innerHTML = "<span class='glyphicon glyphicon-lock'> Lock";
+            
+
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                showUsers();
             }
             };
     }
@@ -476,8 +655,32 @@
        addingForm.innerHTML = "<h3><button type='button' onclick='insertForum("+id+")'  class='up btn btn-success btn-lg'> <span class='glyphicon glyphicon-plus'> </button> ADD Forum</h3>";
     }
     
+    function searchFormById(id)
+    {
+        for (i=0;i<forumList.length;i++)
+        {
+            //console.log(forumList[i].id+" "+id);
+            if(id==forumList[i].id)
+            {    
+                return i;
+            }
+        }
+    }
+    
     function lockForum(id,button)
     {
+        
+        //alert(searchFormById(id));
+        
+        if(forumList[searchFormById(id)].parent_id)
+        {
+            if(forumList[searchFormById(forumList[searchFormById(id)].parent_id)].locked==1)
+            {
+                alert('parent locked');
+                return;
+            }
+        }
+        
         
         if(window.XMLHttpRequest) {
                 ajaxRequest1 = new XMLHttpRequest();
@@ -510,12 +713,14 @@
                 if(button.getAttribute("class")=='up btn btn-danger btn-lg')
                 {
                     button.setAttribute("class","up btn btn-success btn-lg") ;
+                    forumList[searchFormById(id)].locked=1;
                     button.innerHTML = "<span class='glyphicon glyphicon-lock'> Unlock";
                     showForums();
                 }
                 else
                 {
                     button.setAttribute("class","up btn btn-danger btn-lg") ;
+                    forumList[searchFormById(id)].locked=0;
                     button.innerHTML = "<span class='glyphicon glyphicon-lock'> Lock";
                 }
             }

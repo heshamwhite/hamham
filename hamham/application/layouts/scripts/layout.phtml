@@ -4,14 +4,152 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>Ham Ham Kitchen</title>
-    HAM HAM Kitchen Header
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+
 </head>
 <body>
- 
+    <div id="hamhamheader">
+        
+        <?php
+            $authorization = Zend_Auth::getInstance();
+            if(!$authorization->hasIdentity()) {
+                $auth = TBS\Auth::getInstance();
+                
+                
+                if (!$auth->hasIdentity()) {
+                    
+                    $flag = 1; // no identity
+          
+                }
+                else{
+                    
+                    $thisUserFB = $auth->getIdentity();
+                    foreach ($thisUserFB as $provider){
+                        $facebookData = $provider->getApi()->getProfile();
+                        $profileimage = $provider->getApi()->getPicture();
+                        $profileFbLink = $facebookData['link'];
+                        $facebookName = $facebookData['name'];
+                        $flag = 2; // facebook user
+                        //echo 'hello,'.$facebookData['name'];
+                        //echo "<img src='$profileimage'>";
+                        //echo "<a href='$profileFbLink'> Profile Page </a>";
+                        //echo "<a href='/hamham/hamham/public/Authentication/logout'> Logout </a>";
+                    }
+                }
+            }
+            else{
+                $flag = 3; // normal user
+                //echo 'Hello,'.($authorization->getIdentity()->username);
+                $profileimage = "/hamham/hamham/public/images/users/".$authorization->getIdentity()->profileimage;
+                //echo "<img src='$profileimage' width='50' height='50'>";
+                //echo "<a href='/hamham/hamham/public/User/logout'> Logout </a>";
+                //echo "<a href='/hamham/hamham/public/User/profilepage'> Profile Page </a>";
+            }
+        ?>
+        
+    <nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/hamham/hamham/public/index.php">Home</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><a href="#">Link</a></li>
+        <?php
+        if( ($flag==3) && $authorization->getIdentity()->is_admin>0){
+            echo "<li><a href='/hamham/hamham/public/admin'>Admin Pannel</a></li>";
+        }
+        ?>
+        
+        
+      </ul>
+      <form class="navbar-form navbar-left" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search">
+        </div>
+        <button type="button" class="btn btn-default">Submit</button>
+      </form>
+      <ul class="nav navbar-nav navbar-right">
+      
+      <?php
+        if( $flag==3 ){
+            $username = $authorization->getIdentity()->username;
+            echo "<li><a>Welcome , $username</a></li>";
+            echo "<li><img src='$profileimage' width='70px' height='70px' ></li>";
+        }else if($flag==2)
+        {
+            echo "<li><a>Welcome , $facebookName</a></li>";
+            echo "<li><img src='$profileimage' width='70px' height='70px' ></li>";
+        }
+        
+        
+        if( $flag!=1 )
+        {
+            if( $flag==3 ){
+                 echo "<li><a href='/hamham/hamham/public/User/logout'> Logout</a></li>";
+            }
+            else if($flag==2)
+            {
+                 echo "<li><a href='/hamham/hamham/public/Authentication/logout'> Logout</a></li>";
+            }
+           
+        
+        }  else {
+            echo "<li class='dropdown'>
+          <a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-expanded='false'> Login <span class='caret'></span></a>
+          <ul class='dropdown-menu' role='menu'>
+            <li><a href='/hamham/hamham/public/Authentication'>Normal</a></li>
+            
+            <li class='divider'></li>
+            <li><a href='/hamham/hamham/public/Authentication/login2'><img src='http://www.bocaratontribune.com/wp-content/uploads/2014/06/Facebook-logo.jpg' width='20px' height='20px' >  Facebook</a></li>
+          </ul>
+        </li>";
+        }
+        
+        
+        
+        ?>
+        
+        
+         
+        
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="#">Action</a></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+        
+                    
+                
+    </div>
 <?php echo $this->layout()->content ?>
  
-    <div>
+    <div id="hamhamfooter">
         HAM HAM Kitchen Footer
     </div>
 </body>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 </html>
