@@ -348,7 +348,7 @@ class UserController extends Zend_Controller_Action
         $authorization = Zend_Auth::getInstance();
         if(isset($authorization->getIdentity()->id)){
         $myUserid = $authorization->getIdentity()->id;
-        
+        $myUsername = $authorization->getIdentity()->username;
         $rec_id = $this->_request->getParam("rec_id");
         $msg = $this->_request->getParam("message");
         $title = $this->_request->getParam("msgtitle");
@@ -360,10 +360,41 @@ class UserController extends Zend_Controller_Action
         //print_r($data);
         $result = $thisUserMessage->addPrivateMessage($data);
             echo '###message sent###';
+        
+        $notificObj['userID'] = $rec_id;
+        $notificObj['notificationTime'] =  date('Y-m-d G:i:s');
+        $notificObj['notificationBody'] =  "Message was sent to you by $myUsername.";
+        $notificObj['type'] = 0;
+        $thisNotification = new Application_Model_Notification($notificObj);
+        $thisNotification->addNotification($notificObj);    
         }
         else{
             echo '###error###';
         }
+    }
+    
+    public function getthismessageAction(){
+        $id = $this->_getParam("msg");
+        $notificationID = $this->_getParam("notify");  
+        $privateMessage = new Application_Model_PrivateMessage();
+        $thisMessage =  $privateMessage->getPrivateMessageBymsgID($id);
+        
+        $userObj = new Application_Model_User();
+        $senderUser = $userObj->getUserByID($thisMessage['sendUserID']);
+        
+        $thisNotification = new Application_Model_Notification();
+        $thisNotification->setNotificationAsSeen($notificationID);
+        
+        //echo "<h3>".$thisMessage['msg_title']."<span class='label label-default'>New</span></h3>"
+        //<span class='label label-default'>Default</span>
+        //<h3>Example heading <span class='label label-default'>New</span></h3>
+
+       echo "<div class='jumbotron'>";
+       echo "<h1>".$thisMessage['msg_title']."</h1>";
+       echo "<p>".$thisMessage['msg_body']."</p>";
+       echo "<p><a class='btn btn-primary btn-lg' href='/hamham/hamham/public/user/friendprofile/friendid/".$senderUser['id']."' role='button'>".$senderUser['username']."</a></p>";
+       echo "</div>";
+
     }
     
 

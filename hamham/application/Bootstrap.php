@@ -46,7 +46,9 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 //            
 //         }
          
-         
+        if(isset($_COOKIE['hamham'])){
+            
+        } 
         if(!$authorization->hasIdentity()) {
             $frontCtrl = Zend_Controller_Front::getInstance();
              $view->logRed = 1;

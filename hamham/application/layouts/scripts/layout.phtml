@@ -86,8 +86,12 @@
       <?php
         if( $flag==3 ){
             $username = $authorization->getIdentity()->username;
+            $userID = $authorization->getIdentity()->id;
             echo "<li><a>Welcome , $username</a></li>";
             echo "<li><img src='$profileimage' width='70px' height='70px' ></li>";
+            $notificationObj = new Application_Model_Notification();
+            $notifications = $notificationObj->getAllUnseenNotificationByUserID($userID);
+            
         }else if($flag==2)
         {
             echo "<li><a>Welcome , $facebookName</a></li>";
@@ -126,13 +130,27 @@
          
         
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="#">Action</a></li>
-            <li><a href="#">Another action</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li class="divider"></li>
-            <li><a href="#">Separated link</a></li>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span id='notiHeader'>Notifications</span> <span class="caret"></span></a>
+          <ul id="notificationlist" class="dropdown-menu" role="menu">
+              
+              <?php
+                foreach ($notifications as $value) {
+                    $notificationBody = $value['notificationBody'];
+                    if($value['type'] == 0 ){
+                        echo "<li> <a href='http://kitchenforum.com/hamham/hamham/public/User/getthismessage/msg/".$value['relatedID']."/notify/".$value['id']."'>".$notificationBody."</a></li>";
+                    }
+                    else{
+                        echo "<li> <a href='http://kitchenforum.com/hamham/hamham/public/User/getthismessage/msg/".$value['relatedID']."'>".$notificationBody."</a></li>";
+                    }
+                    echo "<li class='divider'></li>";
+                    ?>
+              <script> document.getElementById('notiHeader').style.color = "red";
+                       document.getElementById('notiHeader').innerHTML = "Notifications ( "+"<?php echo count($notifications);?>"+" )" ;
+              </script>
+                    <?php
+                }
+              ?>
+
           </ul>
         </li>
       </ul>

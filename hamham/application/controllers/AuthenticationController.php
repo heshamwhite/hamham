@@ -47,6 +47,33 @@ class AuthenticationController extends Zend_Controller_Action
 
                              $storage->write($authAdapter->getResultRowObject(array('email' , 'id' , 'username', 'profileimage','is_admin','user_type_id')));
                              //$this->redirect("Post/list");
+//                             if($this->_request->getParam('rememberme')){
+//                                $seed = str_split('abcdefghijklmnopqrstuvwxyz'
+//                                .'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+//                                .'0123456789'); // and any other characters
+//                                shuffle($seed); // probably optional since array_is randomized; this may be redundant
+//                                $cid= substr(implode('', $seed), 1, 51); 
+//                                 
+//                                $cookie_name = "hamham";
+//                                $cookieArr[0] = $username;
+//                                $cookieArr[1] = $cid;
+//                                $cookie_value = implode(' ', $cookieArr);
+//                                //setcookie($cookie_name, $cookie_value, time() + (86400 * 30),'/');
+//                              
+//                                $cookie = new Zend_Http_Header_SetCookie($cookie_name,$cookie_value,strtotime('+1 Year', time()),'/');
+//                                $this->getServiceManager()->get('Response')->getHeaders()->addHeader($cookie);
+//
+//                                
+//                                
+//                                $cdata['username'] = $username;
+//                                $cdata['token'] = $cid;
+//                                $cdata['cookieDate'] = date('Y-m-d G:i:s');      
+//                                $cookietoken = new Application_Model_Cookietoken();
+//                                $cookietoken->addCookieToken($cdata);
+//                                
+//                                
+//                             }
+                             
                              $this->redirect("/");
                          }else{
                              $this->view->form = $form;

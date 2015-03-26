@@ -25,6 +25,10 @@ class Application_Model_PrivateMessage extends Zend_Db_Table_Abstract
         $row = $privateMessages->fetchRow($privateMessages->select()->where('sendUserID = ?', $id));
         return $row->toArray();
     }
-
+    function getPrivateMessageBymsgID($id){
+        $privateMessages = new Application_Model_PrivateMessage();
+        $row = $privateMessages->fetchRow($privateMessages->select()->where('msg_id = ?', $id));
+        return $row->toArray();
+    }
     
 }

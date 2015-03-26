@@ -21,6 +21,8 @@
       <layoutsDirectory enabled="false"/>
       <modelsDirectory>
         <modelFile modelName="UserFacebook"/>
+        <modelFile modelName="Cookietoken"/>
+        <modelFile modelName="Notification"/>
       </modelsDirectory>
       <modulesDirectory enabled="false"/>
       <servicesDirectory enabled="false"/>
