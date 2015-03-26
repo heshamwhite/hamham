@@ -1,10 +1,158 @@
+
+<script>
+
+
+    function deleteComment(postID){
+        var xmlhttp;
+        if (window.XMLHttpRequest)
+          {// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+          }
+        else
+          {// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+          }
+        xmlhttp.onreadystatechange=function()
+          {
+          if (xmlhttp.readyState==4 && xmlhttp.status==200)
+            {
+                var res = xmlhttp.responseText.split("#");
+                if(res[1] == "true"){
+                    document.getElementById(postID).remove(); 
+                }
+            }
+          }
+
+        var url = "/hamham/hamham/public/post/delete/id/"+postID ; 
+        xmlhttp.open("GET",url,true);
+        xmlhttp.send();
+
+    }
+
+    function updateComment(postID){
+
+        document.getElementsByName(postID)[0].contentEditable='true';
+        document.getElementsByName(postID)[0].style.backgroundColor = "yellow";
+        document.getElementsByClassName(postID)[0].style.display="inline";
+
+    }
+
+    function saveupdateComment(postID){
+
+        document.getElementsByName(postID)[0].contentEditable='false';
+        document.getElementsByName(postID)[0].style.backgroundColor = "white";
+        document.getElementsByClassName(postID)[0].style.display="none";
+
+        
+
+
+        var xmlhttp;
+        if (window.XMLHttpRequest)
+          {// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+          }
+        else
+          {// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+          }
+        xmlhttp.onreadystatechange=function()
+          {
+          if (xmlhttp.readyState==4 && xmlhttp.status==200)
+            {
+
+                //alert(xmlhttp.responseText);
+
+            }
+          }
+            var edited = document.getElementsByName(postID)[0].innerHTML ;
+            xmlhttp.open("POST" , "/hamham/hamham/public/Post/edite", true);
+            xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");             
+            xmlhttp.send("postID="+postID+"&edited="+edited);
+
+    }
+
+    function bannUser(userID,userName){
+
+        var xmlhttp;
+        if (window.XMLHttpRequest)
+          {// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+          }
+        else
+          {// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+          }
+        xmlhttp.onreadystatechange=function()
+          {
+          if (xmlhttp.readyState==4 && xmlhttp.status==200)
+            {
+
+                //document.getElementById("myDiv").innerHTML=
+                var res = xmlhttp.responseText.split("#");
+                if(res[1] == "true"){
+                    alert(userName+" is banned for 7 days ");
+                }
+
+            }
+          }
+
+        var url = "/hamham/hamham/public/user/bann/id/"+userID+"/period/7" ; 
+        xmlhttp.open("GET",url,true);
+        xmlhttp.send();
+
+    }
+
+    function addComment()
+    {
+        if(window.XMLHttpRequest) {
+                ajaxRequest1 = new XMLHttpRequest();
+            }
+            else {
+                ajaxRequest1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+
+            ajaxRequest1.open("POST" , "/hamham/hamham/public/Post/add", true);
+            ajaxRequest1.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    
+            user_id = document.getElementById("user_id").value;
+ 
+            forum_id = document.getElementById("forum_id").value;
+
+            Post_id = document.getElementById("post_id").value;
+
+            comment = CKEDITOR.instances.editor1.getData();
+             
+            ajaxRequest1.send("user_id="+user_id+"&forum_id="+forum_id+"&Post_id="+Post_id+"&comment="+comment);
+
+            ajaxRequest1.onreadystatechange = function(){
+            if (ajaxRequest1.readyState === 4 && ajaxRequest1.status === 200) {
+                
+                var res = ajaxRequest1.responseText.split("#");
+
+                if(res[1] == "true"){alert("Comment Saved");}
+
+            }
+
+            }
+    }
+
+</script>                
+
+
+
+
+
+
 <?php 
+
+
 try {    
     $user = new Application_Model_User();
     $userType = new Application_Model_UserType();
 
     $ckeditor = $this->baseUrl()."/ckeditor/ckeditor.js";
-    echo $ckeditor;
+
     ?>
 
 
@@ -47,7 +195,7 @@ if(!isset($this->Post)){  header("Location:".$this->baseUrl()."/Error/pagenotval
                     ?>
                         <image src="<?php echo $user_pp; ?>" height="59" width="59" />
                         <br/>
-                        <a href="<?php echo $this->baseUrl()?>/User/index/id/<?php echo $user_data['id'];?>"><?php echo $user_data['username'];?></a>    
+<a href="<?php echo $this->baseUrl()?>/User/index/id/<?php echo $user_data['id'];?>"> <?php echo $user_data['username']; ?> </a>    
                         <br/>
                        <?php echo $myUserType; ?>
                     </div> 
@@ -70,18 +218,24 @@ if(isset($this->SubPosts)){
     
     foreach ($this->SubPosts as $key=>$value){
         ?>
-            <tr><td>
+            <tr id="<?php echo $value['id'];?>"><td>
                     <div> 
                     <?php 
                           $user_data = $user->getUserById($value['user_id']);
                           $user_pp = $this->baseUrl() . "/images/users/".$user_data['profileimage'];                          
                           $myUserType = $userType->getUserTypeById($user_data['id'])[0]['type'];
                     ?>
+
                         <image src="<?php echo $user_pp; ?>" height="59" width="59" />
                         <br/>
                         <a href="<?php echo $this->baseUrl()?>/User/index/id/<?php echo $user_data['id'];?>"><?php echo $user_data['username'];?></a>    
                         <br/>
                        <?php echo $myUserType; ?>
+
+                       <button onclick="bannUser(<?php echo $user_data['id'] .",'". $user_data['username']."'";?> )">bann</button>
+                       <button onclick="deleteComment(<?php echo $value['id'];?> )">delete comment</button>
+                       <button onclick="updateComment(<?php echo $value['id'];?> )">update comment</button>
+
                     </div> 
                     
                     </br>
@@ -90,7 +244,13 @@ if(isset($this->SubPosts)){
                     <?php
                             
                             echo "<br/>";
-                            echo $value['body'];
+                            ?>
+                            <div name="<?php echo $value['id'];?>">
+                            <?php echo $value['body']; ?>
+                            </div>
+
+<button onclick="saveupdateComment(<?php echo $value['id'];?> )" style="display:none;" class="<?php echo $value['id'];?>">save update</button>
+                            <?php
                             echo "<br/>";echo "<br/>";
                             echo $user_data['signature'];
                     ?> 
@@ -117,27 +277,19 @@ if(isset($this->SubPosts)){
             if ($user_info) {
 
                 ?>
-                    <script>
                     
-                    function addComment(){
-                        alert(CKEDITOR.instances.editor1.getData());
-                        
-                    }
-                    </script>
-                    
-                    
-                    
-             
-                    
-                    
-                    
-                    
-                <textarea class="ckeditor" name="editor1" id="editor1" ></textarea>
+                 <form  method ="POST" action="<?php echo $this->baseUrl()?>/post/add/">   
+                 <input type="hidden" value = "<?php echo $user_info->id ; ?>" id="user_id" name="user_id">
+                 <input type="hidden" value = "<?php echo $this->myForum['id']; ?>" id="forum_id" name="forum_id">
+                 <input type="hidden" value = "<?php echo $this->Post['id']; ?>" id="post_id" name="post_id">
+                 <textarea class="ckeditor" name="editor1" id="editor1" ></textarea>
+                 <input type="submit" value="add Comment">
+                </form>
+                <br/> 
+
                 
-                <br/>
-                <button onclick="addComment()">Comment</button>
                 <?php
-                
+                //<button onclick="addComment()">Comment</button>
             }else{Properties
                 ?>
                 <form action="<?php echo $this->baseUrl()?>/user/login/" method="post">

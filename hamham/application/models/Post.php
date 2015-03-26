@@ -52,6 +52,15 @@ class Application_Model_Post extends Zend_Db_Table_Abstract
         return $row->save();
     }
     
+    function latestPost($forumID){
+        
+        return $this->fetchAll(
+            $this->select()
+                ->from($this, array(new Zend_Db_Expr('max(date)'), id))
+            );
+   
+    }
+    
     
 }
 

@@ -36,6 +36,31 @@ class PostController extends Zend_Controller_Action
         
     }
     
+
+
+     public function editeAction()
+    {
+        $Post_id =  $this->_request->getParam("postID") ;
+        $editedText = $this->_request->getParam("edited");
+
+        if($Post_id && $editedText && ctype_digit($Post_id)){
+            
+                    $PostModel = new Application_Model_Post();
+                    $Current = $PostModel->getMainPostById($Post_id);
+                    $data['id']=$Post_id;
+                    $data['body']= $editedText;
+                    $PostModel->editPost($data);
+                    echo "#true";
+                    exit;
+                    
+        }
+         
+
+           $this->_redirect('/Error/pagenotvalid/');
+        
+    }
+
+
     public function deleteAction()
     {
         $Post_id =  $this->_request->getParam("id") ;
@@ -55,8 +80,10 @@ class PostController extends Zend_Controller_Action
                     $data['deleted']= "0";
                     else $data['deleted']= "1";
                     $PostModel->editPost($data);
-                    $link = "/Forum/index/id/".$Current[0]['forum_id'];
-                    $this->_redirect($link); 
+                    echo "#true";
+                    exit;
+                    //$link = "/Forum/index/id/".$Current[0]['forum_id'];
+                    //$this->_redirect($link); 
                 }
   
         }
@@ -102,9 +129,33 @@ class PostController extends Zend_Controller_Action
 
     public function addAction()
     {
+
+        //var_dump($this->_request->getParams()); exit;
+
         $addPostForm  = new Application_Form_AddPost();
         $forum = $this->_request->getParam("forum");
-        //var_dump($this->_request->getParams()); 'valid';exit;
+
+
+
+
+        if($this->_request->getParam('user_id') && $this->_request->getParam('forum_id') && $this->_request->getParam('post_id')
+            && $this->_request->getParam('editor1') ){
+
+            $data['user_id'] = $this->_request->getParam('user_id'); 
+            $data['body'] = $this->_request->getParam('editor1'); 
+            $data['user_id'] = $this->_request->getParam('user_id'); 
+            $data['title'] = "_"; 
+            $data['forumID'] = $this->_request->getParam('forum_id');
+            $data['postID'] = $this->_request->getParam('post_id');
+            $post_model = new Application_Model_Post();
+            $post_model->addPost($data);
+            $url = "/post/index/id/".$data['postID'] ;
+
+            $this->redirect($url);
+            //echo "#true";
+            //exit;
+        }
+        
 
 
         if($addPostForm->isValid($this->_request->getParams())){
@@ -120,17 +171,16 @@ class PostController extends Zend_Controller_Action
             
             $auth = Zend_Auth::getInstance();
             $user_info = $auth->getIdentity();
+            $user_info->id = "1";
             if (!$user_info) {
-                //$this->redirect("user/login");
+                $this->redirect("user/login");
             }
             
             $addPostForm->getElement("forumID")->setValue("$forum");
-            $addPostForm->getElement("user_id")->setValue("1");
+            $addPostForm->getElement("user_id")->setValue($user_info->id );
             $addPostForm->getElement("postID")->setValue('');
             $this->view->addPostForm = $addPostForm;
             
-        }elseif($this->_request->getParam('body')){
-            echo 'here';exit;
         }else{
             $this->redirect("/eroor/error/");
         }

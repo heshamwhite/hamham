@@ -17,6 +17,8 @@ class UserController extends Zend_Controller_Action
 
     public function bannAction()
     {
+        
+        $postmodel = new Application_Model_Post();
         $User_id =  $this->_request->getParam("id") ;
         $period =  $this->_request->getParam("period") ;
        
@@ -36,7 +38,9 @@ class UserController extends Zend_Controller_Action
                     $now->modify($str);
                     $data['banned']= $now->format( 'Y-m-d' );
                     $UserModel->editUser($data);
-                    $this->_redirect("/Index/index/"); 
+                    echo "#true";
+                    exit();
+              
                 }
         }
            

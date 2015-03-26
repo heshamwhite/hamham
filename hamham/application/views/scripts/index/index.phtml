@@ -27,23 +27,29 @@ if(isset($this->Categories)){
                         <td> 
                            
                             <b><a href="<?php echo $this->baseUrl()?>/Forum/index/id/<?php echo $Forumvalue['id'];?>"><?php echo $Forumvalue['name'];?></a></b>
-                            
+                         </td>
+                         <td> lol</td>
+                    </tr>    
                             
                             <?php
                             $SubForum =$Forum->getSubForumsById($Forumvalue['id']);
                             if(!empty($SubForum)){
                                 foreach ($SubForum as $SubForumkey=>$SubForumvalue){
                                    ?>
-                            
-                                     <a href="<?php echo $this->baseUrl()?>/Forum/index/id/<?php echo $SubForumvalue['id'];?>"><?php echo $SubForumvalue['name'];?></a>   
+                                            <tr>
+                                            <td> 
+                                    &nbsp;&nbsp; <a href="<?php echo $this->baseUrl()?>/Forum/index/id/<?php echo $SubForumvalue['id'];?>"><?php echo $SubForumvalue['name'];?></a>   
+                                    
+                                           </td>
+                                           <td> lol</td>
+                                           </tr> 
                                     <?php
                                     
                                 }
                             }
                             ?>
                             
-                        </td>
-                    </tr>
+                       
                   
             <?php       }  ?></table> <?php   }
 
